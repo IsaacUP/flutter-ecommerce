@@ -218,6 +218,15 @@ class _LoginPage extends State<LoginPage> {
                                     errorPass = "minimo 8 caracteres";
                                   }
                                 }
+
+                                if (_validate == false &&
+                                    _validatePass == false) {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              DashboardPage()));
+                                }
                               });
 
                               // showDialog(
