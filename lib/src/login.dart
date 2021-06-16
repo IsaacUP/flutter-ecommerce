@@ -3,9 +3,34 @@ import 'package:app_test/src/FadeAnimation.dart';
 import 'package:app_test/src/singup.dart';
 import 'package:app_test/src/dashboard.dart';
 
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPage createState() {
+    return new _LoginPage();
+  }
+}
 
-class LoginPage extends StatelessWidget {
+class _LoginPage extends State<LoginPage> {
   var name, password, token, id, nameR;
+
+  final alphanumeric = RegExp(r'^[a-zA-Z0-9]+$');
+  final minLetter = RegExp('[a-zA-Z]+');
+  final space = RegExp('\s');
+  final character = RegExp('[@!\$%&/?¡¿]+');
+
+  final _text = TextEditingController();
+  final _pass = TextEditingController();
+  bool _validate = false;
+  bool _validatePass = false;
+
+  String errorPass = " ";
+  String errorText = " ";
+
+  @override
+  void dispose() {
+    _text.dispose();
+    super.dispose();
+  }
 
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -87,10 +112,14 @@ class LoginPage extends StatelessWidget {
                                       bottom:
                                           BorderSide(color: Colors.grey[200]))),
                               child: TextField(
+                                  controller: _text,
+                                  maxLength: 30,
                                   decoration: InputDecoration(
+                                      counterText: "",
                                       border: InputBorder.none,
                                       hintText: "Usuario",
-                                      hintStyle: TextStyle(color: Colors.grey)),
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                      errorText: _validate ? errorText : null),
                                   onChanged: (val) {
                                     name = val;
                                   }),
@@ -98,11 +127,14 @@ class LoginPage extends StatelessWidget {
                             Container(
                               padding: EdgeInsets.all(10),
                               child: TextField(
+                                  controller: _pass,
                                   obscureText: true,
                                   decoration: InputDecoration(
                                       border: InputBorder.none,
                                       hintText: "Contraseña",
-                                      hintStyle: TextStyle(color: Colors.grey)),
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                      errorText:
+                                          _validatePass ? errorPass : null),
                                   onChanged: (val) {
                                     password = val;
                                   }),
@@ -136,13 +168,71 @@ class LoginPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             onPressed: () {
+                              setState(() {
+                                if (_text.text.isEmpty) {
+                                  _validate = true;
+                                  errorText = "vacio";
+                                } else {
+                                  if (_text.text.length >= 8 &&
+                                      _text.text.length <= 30) {
+                                    if (alphanumeric.hasMatch(_text.text)) {
+                                      if (minLetter.hasMatch(_text.text)) {
+                                        _validate = false;
+                                      } else {
+                                        // error minimo una letra
+                                        _validate = true;
+                                        errorText = "minimo una letra";
+                                      }
+                                    } else {
+                                      // error no alfanumerico
+                                      _validate = true;
+                                      errorText = "no alfanumerico";
+                                    }
+                                  } else {
+                                    //error minimo 8 caracteres
+                                    _validate = true;
+                                    errorText = "minimo 8 caracteres";
+                                  }
+                                }
 
-                              Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => DashboardPage(
+                                if (_pass.text.isEmpty) {
+                                  _validatePass = true;
+                                  errorPass = "vacio";
+                                } else {
+                                  if (_pass.text.length >= 8 &&
+                                      _pass.text.length <= 30) {
+                                    if (minLetter.hasMatch(_pass.text)) {
+                                      if (character.hasMatch(_pass.text)) {
+                                        _validatePass = false;
+                                      } else {
+                                        _validatePass = true;
+                                        errorPass =
+                                            "minimo un caracter especial";
+                                      }
+                                    } else {
+                                      _validatePass = true;
+                                      errorPass = "minimo una letra";
+                                    }
+                                  } else {
+                                    _validatePass = true;
+                                    errorPass = "minimo 8 caracteres";
+                                  }
+                                }
+                              });
 
-                                              )));
+                              // showDialog(
+                              //     context: context,
+                              //     builder: (context) {
+                              //       return AlertDialog(
+                              //         content: Text(errorMensaje),
+                              //       );
+                              //     });
+
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) => DashboardPage()));
+
                               /*AuthService().login(name, password).then((val) {
                                 print(val.data['token']);
                                 if (val.data['token'] != null) {
