@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:app_test/src/FadeAnimation.dart';
 import 'package:app_test/src/singup.dart';
 import 'package:app_test/src/dashboard.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:app_test/services/authservice.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -31,6 +34,7 @@ class _LoginPage extends State<LoginPage> {
     _text.dispose();
     super.dispose();
   }
+
 
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -171,7 +175,7 @@ class _LoginPage extends State<LoginPage> {
                               setState(() {
                                 if (_text.text.isEmpty) {
                                   _validate = true;
-                                  errorText = "vacio";
+                                  errorText = "Upps... Ingresa tu email";
                                 } else {
                                   if (_text.text.length >= 8 &&
                                       _text.text.length <= 30) {
@@ -185,8 +189,8 @@ class _LoginPage extends State<LoginPage> {
                                       }
                                     } else {
                                       // error no alfanumerico
-                                      _validate = true;
-                                      errorText = "no alfanumerico";
+                                      /*_validate = true;
+                                      errorText = "no alfanumerico"; */
                                     }
                                   } else {
                                     //error minimo 8 caracteres
@@ -197,7 +201,7 @@ class _LoginPage extends State<LoginPage> {
 
                                 if (_pass.text.isEmpty) {
                                   _validatePass = true;
-                                  errorPass = "vacio";
+                                  errorPass = "Upps... Ingresa tu contraseña";
                                 } else {
                                   if (_pass.text.length >= 8 &&
                                       _pass.text.length <= 30) {
@@ -218,32 +222,26 @@ class _LoginPage extends State<LoginPage> {
                                     errorPass = "minimo 8 caracteres";
                                   }
                                 }
+                                
+                                int access = 0;
+                                bool login = false;
 
                                 if (_validate == false &&
                                     _validatePass == false) {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              DashboardPage()));
-                                }
-                              });
 
-                              // showDialog(
-                              //     context: context,
-                              //     builder: (context) {
-                              //       return AlertDialog(
-                              //         content: Text(errorMensaje),
-                              //       );
-                              //     });
+                                  String loginUser = """ 
+                                    mutation loginUser {
+                                      login(
+                                          email: "$name"
+                                          password: "$password"
+                                      ) {
+                                          token
+                                      }
+                                    }
+                                    """;
 
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) => DashboardPage()));
-
-                              /*AuthService().login(name, password).then((val) {
-                                print(val.data['token']);
+                              AuthService().login(name, password).then((val) {
+                                print("R -----> $val");
                                 if (val.data['token'] != null) {
                                   token = val.data['token'];
                                   id = val.data['user_id'];
@@ -268,12 +266,12 @@ class _LoginPage extends State<LoginPage> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => DashboardPage(
-                                                id: id,
-                                                token: token,
-                                              )));
+                                          builder: (context) => DashboardPage()));
                                 }
-                              }); */
+                              }); 
+                              }
+                              });
+                              
                             },
                           ))),
                   SizedBox(

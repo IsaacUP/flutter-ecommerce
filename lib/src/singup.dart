@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:app_test/src/FadeAnimation.dart';
 import 'package:app_test/src/login.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:app_test/services/authservice.dart';
+
 
 class SingupPage extends StatelessWidget {
-  var email, password, confirmPassword;
+  var email, password, confirmPassword, username, cellphone;
 
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -91,7 +94,7 @@ class SingupPage extends StatelessWidget {
                                       hintText: "Ingresa tu username",
                                       hintStyle: TextStyle(color: Colors.grey)),
                                   onChanged: (val) {
-                                    email = val;
+                                    username = val;
                                   }),
                             ),
                             Container(
@@ -107,6 +110,21 @@ class SingupPage extends StatelessWidget {
                                       hintStyle: TextStyle(color: Colors.grey)),
                                   onChanged: (val) {
                                     email = val;
+                                  }),
+                            ),
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  border: Border(
+                                      bottom:
+                                          BorderSide(color: Colors.grey[200]))),
+                              child: TextField(
+                                  decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Ingresa tu no. de teléfono",
+                                      hintStyle: TextStyle(color: Colors.grey)),
+                                  onChanged: (val) {
+                                    cellphone = val;
                                   }),
                             ),
                             Container(
@@ -177,8 +195,23 @@ class SingupPage extends StatelessWidget {
                                     textColor: Colors.white,
                                     fontSize: 16.0);
                               } else {
-                                /*AuthService()
-                                    .addUser(email, password, confirmPassword)
+
+                                  int access = 0;
+                                  String registerUser = """
+                                  mutation registerUser {
+                                      createUser(input: {
+                                        firstName: "$email", lastName: "$username", 
+                                        userName: "$username", profilePic: "./", 
+                                        email: "$email", phone: "$cellphone", 
+                                        password: "$password"
+                                    }) {
+                                      _id
+                                    }
+                                  }
+                                  """;
+
+                                  AuthService()
+                                    .addUser(email, password, username, cellphone)
                                     .then((val) {
                                   print(val.data['key']);
                                   Fluttertoast.showToast(
@@ -193,7 +226,42 @@ class SingupPage extends StatelessWidget {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => LoginPage()));
-                                }); */
+                                });
+
+
+                                /*Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                            Mutation(
+                                              options: MutationOptions(
+                                                documentNode: gql(registerUser), // this is the mutation string you just created
+                                                // you can update the cache based on results
+                                                update: (Cache cache, QueryResult result) {
+                                                  return cache;
+                                                },
+                                                // or do something with the result.data on completion
+                                                onCompleted: (dynamic resultData) {
+                                                  print(resultData);
+                                                  access++;
+                                                  if (access == 1) {
+                                                    Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) => LoginPage()));
+                                                  }
+                                                },
+                                              ),
+                                              builder: (
+                                                RunMutation runMutation,
+                                                QueryResult result,
+                                              ) {
+                                                runMutation({
+                                                    'starrableId': "<A_STARTABLE_REPOSITORY_ID>",
+                                                });
+                                                return Center(child: CircularProgressIndicator());
+                                              },
+                                            ))); */
                               }
                             },
                           ))),
